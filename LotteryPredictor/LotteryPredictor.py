@@ -2,17 +2,12 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
-#import androidhelper
-
-
-#droid = androidhelper.Android()
-#line = droid.dialogGetInput()
-#s = "Hello, %s" % (line.result,)
-#droid.makeToast(s)
 
 #all_draws = []
-whites = [int]*69
-reds = [int]*26
+#whites = [int]*69
+whites = [0 for i in range(70)] 
+#reds = [int]*26
+reds = [0 for i in range(27)] 
 
 class SingleDraw:
 	def __init__(self, ball1, ball2, ball3, ball4, ball5, pb):
@@ -24,27 +19,69 @@ class SingleDraw:
 		self.PB = pb
 
 def handleError(e):
-	print(e)
+	print(e)  
 
 def simple_get(url):
 	try:
-		print("Hello world")
+		# Collect white balls
 		with closing(get(url, stream=True)) as resp:
 			if (resp.status_code == 200):
 				soup = BeautifulSoup(resp.text, features='html.parser')
-				#results = soup.find(class="js-results-archive")
-				#all_white_balls = soup.find_all('li', 'c-result__ball c-result__ball--default')
-				#all_powerballs = soup.find_all('span', 'c-result__ball c-result__ball--red')
-				#counter = 0
-				#draw = SingleDraw(0,0,0,0,0,0)
-				#for white_ball in all_white_balls:
-				#    counter = 0
+				allWhiteBalls = soup.find_all('li', class_='c-ball c-ball--default c-result__item')
+				for whiteBall in allWhiteBalls:
+					whites[int(whiteBall.get_text("|", strip=True))] += 1
+					#print(whiteBall.get_text("|", strip=True))
 			else:
-				print("Error with response")
+				print("HTML Error with response")
+		
+		# Collect red balls
+		with closing(get(url, stream=True)) as resp:
+			if (resp.status_code == 200):
+				soup = BeautifulSoup(resp.text, features='html.parser')
+				allPowerBalls = soup.find_all('li', class_='c-result__item c-result__bonus-ball')
+				for powerBall in allPowerBalls:
+					reds[int(powerBall.get_text("", strip=True)[:-2])] += 1
+					#print(powerBall.get_text("", strip=True)[:-2])
+			else:
+				print("HTML Error with response")
 	except RequestException as e:
 		handleError('Error during request to {0} : {1}'.format(url, str(e)))
 
 	return None
 
-simple_get('https://www.lotteryusa.com/powerball/year')
+def simple_get_local(path):
+	try:
+		# Collect white balls
+		with open(path) as filePath:
+			soup = BeautifulSoup(filePath, features='html.parser')
+			allWhiteBalls = soup.find_all('li', class_='c-ball c-ball--default c-result__item')
+			for whiteBall in allWhiteBalls:
+				whites[int(whiteBall.get_text("|", strip=True))] += 1
+				#print(whiteBall.get_text("|", strip=True))
 
+		# Collect red balls
+		with open(path) as filePath:
+			soup = BeautifulSoup(filePath, features='html.parser')
+			allPowerBalls = soup.find_all('li', class_='c-result__item c-result__bonus-ball')
+			for powerBall in allPowerBalls:
+				reds[int(powerBall.get_text("", strip=True)[:-2])] += 1
+				#print(powerBall.get_text("", strip=True)[:-2])
+	except:
+		return None
+
+	return None
+
+#simple_get('https://www.lotteryusa.com/powerball/year')
+simple_get_local('C:/Projects/LotteryPredictor/LotteryPredictor/Lottery.html')
+
+# Print counts of Whites
+counter = 0
+for whiteBall in whites:
+	print(str(counter) + "=" + str(whiteBall))
+	counter += 1
+
+# Print counts of Reds
+counter = 0
+for redBall in reds:
+	print(str(counter) + "=" + str(redBall))
+	counter += 1
