@@ -74,7 +74,7 @@ def simple_get_local(path):
 #simple_get('https://www.lotteryusa.com/powerball/year')
 simple_get_local('C:/Projects/LotteryPredictor/LotteryPredictor/Lottery.html')
 
-# Print counts of Whites
+# Print counts of Whites 
 counter = 0
 for whiteBall in whites:
 	print(str(counter) + "=" + str(whiteBall))
