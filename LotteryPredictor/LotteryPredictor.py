@@ -72,7 +72,7 @@ def simple_get_local(path):
 	return None
 
 #simple_get('https://www.lotteryusa.com/powerball/year')
-simple_get_local('C:/Projects/LotteryPredictor/LotteryPredictor/Lottery.html')
+simple_get_local('C:/Projects/LotteryPredictor/LotteryPredictor/Lottery')
 
 # Print counts of Whites 
 counter = 0
